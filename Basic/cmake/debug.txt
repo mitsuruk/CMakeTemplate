@@ -1,0 +1,10 @@
+
+message(STATUS "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+set(_searchWord_ KEYWORD)
+get_cmake_property(_vars_ VARIABLES)
+foreach(_varname_ ${_vars_})
+        if( "${_varname_}" MATCHES "${_searchWord_}" )
+             message(STATUS "${_varname_} = ${${_varname_}}")
+        endif()
+endforeach()
+message(STATUS "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
