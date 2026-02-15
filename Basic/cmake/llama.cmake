@@ -12,7 +12,7 @@ include_guard(GLOBAL)
 
 include(FetchContent)
 
-set(LLAMA_DOWNLOAD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/download)
+set(LLAMA_DOWNLOAD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/download/llama)
 set(LLAMA_SOURCE_DIR ${LLAMA_DOWNLOAD_DIR}/llama)
 
 message(STATUS "===============================================================")

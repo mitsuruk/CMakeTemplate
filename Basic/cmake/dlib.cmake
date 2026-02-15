@@ -23,7 +23,7 @@ message(STATUS "==============================================================="
 message(STATUS "dlib configuration:")
 
 # Path to download directory and dlib
-set(DLIB_DOWNLOAD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/download)
+set(DLIB_DOWNLOAD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/download/dlib)
 set(DLIB_DIR ${DLIB_DOWNLOAD_DIR}/dlib)
 set(DLIB_MODELS_DIR ${DLIB_DOWNLOAD_DIR}/dlib-models)
 

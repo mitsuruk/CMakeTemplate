@@ -19,7 +19,7 @@ message(STATUS "==============================================================="
 message(STATUS "replxx configuration:")
 
 # Path to download directory
-set(REPLXX_DOWNLOAD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/download)
+set(REPLXX_DOWNLOAD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/download/replxx)
 set(REPLXX_SOURCE_DIR ${REPLXX_DOWNLOAD_DIR}/replxx)
 
 message(STATUS "REPLXX_SOURCE_DIR = ${REPLXX_SOURCE_DIR}")
