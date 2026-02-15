@@ -7,7 +7,7 @@ It uses CMake's `file(DOWNLOAD)` and `execute_process` to manage the dependency,
 
 GSL (GNU Scientific Library) is a free numerical library for C and C++ programmers. It provides over 1,000 routines for mathematical computation including random number generators, special functions, least-squares fitting, FFT, linear algebra, statistics, interpolation, numerical differentiation/integration, and more.
 
-GSL is a pure C library. C++ from利用する場合は、C のヘッダ (`<gsl/gsl_*.h>`) をそのまま `#include` して使用します。
+GSL is a pure C library. When using it from C++, you simply `#include` the C headers (`<gsl/gsl_*.h>`) directly.
 
 ## File Information
 
@@ -158,7 +158,7 @@ execute_process(COMMAND make install WORKING_DIRECTORY ${GSL_SOURCE_DIR})
 - `--disable-shared --enable-static`: Builds static libraries only
 - `--with-pic`: Generates position-independent code
 - All steps run at CMake configure time, not at build time
-- GMP と異なり `--enable-cxx` オプションはありません（GSL は C ライブラリです）
+- Unlike GMP, there is no `--enable-cxx` option (GSL is a C library)
 
 ### 5. Linking the Library
 
@@ -183,15 +183,15 @@ Note: `gsl_lib` must be listed before `gslcblas_lib` to satisfy linker dependenc
 
 ## GSL Libraries
 
-GSL は2つのライブラリで構成されています:
+GSL consists of two libraries:
 
 | Library | File | Description |
 |---------|------|-------------|
-| `libgsl` | `libgsl.a` | GSL 本体。すべての科学計算ルーチンを含む |
-| `libgslcblas` | `libgslcblas.a` | GSL 付属の CBLAS 実装。線形代数ルーチンが使用する |
+| `libgsl` | `libgsl.a` | The main GSL library containing all scientific computing routines |
+| `libgslcblas` | `libgslcblas.a` | GSL's bundled CBLAS implementation, used by linear algebra routines |
 
-`libgslcblas` は CBLAS (C interface to Basic Linear Algebra Subprograms) のリファレンス実装です。
-より高速な BLAS 実装（Apple Accelerate, OpenBLAS, Intel MKL など）がある場合は、`libgslcblas` の代わりにそれらをリンクすることで性能が向上します。
+`libgslcblas` is a reference implementation of CBLAS (C interface to Basic Linear Algebra Subprograms).
+If a faster BLAS implementation is available (Apple Accelerate, OpenBLAS, Intel MKL, etc.), linking it instead of `libgslcblas` will improve performance.
 
 ---
 
@@ -199,33 +199,33 @@ GSL は2つのライブラリで構成されています:
 
 | Feature | Header | Description |
 |---------|--------|-------------|
-| ベクトル・行列 | `gsl_vector.h`, `gsl_matrix.h` | 動的に確保されるベクトルと行列 |
-| BLAS | `gsl_blas.h` | Level 1/2/3 BLAS (内積, 行列積 等) |
-| 線形代数 | `gsl_linalg.h` | LU, QR, Cholesky, SVD 分解, 連立方程式の求解 |
-| 固有値 | `gsl_eigen.h` | 実対称・非対称行列の固有値・固有ベクトル |
-| FFT | `gsl_fft_real.h`, `gsl_fft_complex.h` | 実数列・複素数列の高速フーリエ変換 |
-| 乱数生成 | `gsl_rng.h` | Mersenne Twister 他、多数の乱数生成器 |
-| 確率分布 | `gsl_randist.h` | ガウス, ポアソン, 二項分布 等の乱数とPDF |
-| 統計 | `gsl_statistics.h` | 平均, 分散, 標準偏差, 中央値, 共分散, 相関 |
-| 補間 | `gsl_spline.h`, `gsl_interp.h` | 線形補間, 多項式補間, 三次スプライン補間 |
-| 数値微分 | `gsl_deriv.h` | 中心差分による数値微分と誤差推定 |
-| 数値積分 | `gsl_integration.h` | 適応型数値積分 (QAG, QAGS, QAGI 等) |
-| 最小化 | `gsl_min.h`, `gsl_multimin.h` | 1次元・多次元の関数最小化 |
-| 非線形最小二乗 | `gsl_multifit_nlinear.h` | Levenberg-Marquardt 等のフィッティング |
-| 常微分方程式 | `gsl_odeiv2.h` | Runge-Kutta, Adams 法等による ODE 求解 |
-| 特殊関数 | `gsl_sf.h` | Bessel, Legendre, Gamma, Beta 等 |
-| 多項式 | `gsl_poly.h` | 多項式の評価と求根 |
-| ソート | `gsl_sort.h` | 配列のソートとインデックス付きソート |
-| ヒストグラム | `gsl_histogram.h` | 1次元・2次元ヒストグラム |
-| モンテカルロ積分 | `gsl_monte.h` | PLAIN, MISER, VEGAS 法 |
-| シミュレーテッドアニーリング | `gsl_siman.h` | 組合せ最適化 |
-| ウェーブレット変換 | `gsl_wavelet.h` | Daubechies, Haar 等のウェーブレット |
+| Vectors & Matrices | `gsl_vector.h`, `gsl_matrix.h` | Dynamically allocated vectors and matrices |
+| BLAS | `gsl_blas.h` | Level 1/2/3 BLAS (dot product, matrix multiplication, etc.) |
+| Linear Algebra | `gsl_linalg.h` | LU, QR, Cholesky, SVD decomposition, solving linear systems |
+| Eigenvalues | `gsl_eigen.h` | Eigenvalues and eigenvectors for real symmetric/nonsymmetric matrices |
+| FFT | `gsl_fft_real.h`, `gsl_fft_complex.h` | Fast Fourier Transform for real and complex sequences |
+| Random Number Generation | `gsl_rng.h` | Mersenne Twister and many other random number generators |
+| Probability Distributions | `gsl_randist.h` | Random variates and PDFs for Gaussian, Poisson, Binomial, etc. |
+| Statistics | `gsl_statistics.h` | Mean, variance, standard deviation, median, covariance, correlation |
+| Interpolation | `gsl_spline.h`, `gsl_interp.h` | Linear, polynomial, and cubic spline interpolation |
+| Numerical Differentiation | `gsl_deriv.h` | Numerical differentiation using central differences with error estimation |
+| Numerical Integration | `gsl_integration.h` | Adaptive numerical integration (QAG, QAGS, QAGI, etc.) |
+| Minimization | `gsl_min.h`, `gsl_multimin.h` | One-dimensional and multidimensional function minimization |
+| Nonlinear Least Squares | `gsl_multifit_nlinear.h` | Curve fitting using Levenberg-Marquardt and related methods |
+| Ordinary Differential Equations | `gsl_odeiv2.h` | ODE solving using Runge-Kutta, Adams, and other methods |
+| Special Functions | `gsl_sf.h` | Bessel, Legendre, Gamma, Beta, and more |
+| Polynomials | `gsl_poly.h` | Polynomial evaluation and root finding |
+| Sorting | `gsl_sort.h` | Array sorting and indexed sorting |
+| Histograms | `gsl_histogram.h` | 1D and 2D histograms |
+| Monte Carlo Integration | `gsl_monte.h` | PLAIN, MISER, VEGAS methods |
+| Simulated Annealing | `gsl_siman.h` | Combinatorial optimization |
+| Wavelet Transforms | `gsl_wavelet.h` | Daubechies, Haar, and other wavelets |
 
 ---
 
 ## Usage Examples in C/C++
 
-### ベクトル・行列と LU 分解
+### Vectors, Matrices, and LU Decomposition
 
 ```c
 #include <gsl/gsl_linalg.h>
@@ -234,18 +234,18 @@ GSL は2つのライブラリで構成されています:
 #include <stdio.h>
 
 int main() {
-    // 3x3 行列 A
+    // 3x3 matrix A
     double a_data[] = {1, 2, 3, 4, 5, 6, 7, 8, 10};
     gsl_matrix_view A = gsl_matrix_view_array(a_data, 3, 3);
 
-    // 右辺ベクトル b
+    // Right-hand side vector b
     double b_data[] = {1, 2, 3};
     gsl_vector_view b = gsl_vector_view_array(b_data, 3);
 
-    // 解ベクトル x
+    // Solution vector x
     gsl_vector *x = gsl_vector_alloc(3);
 
-    // LU 分解と求解
+    // LU decomposition and solve
     gsl_permutation *p = gsl_permutation_alloc(3);
     int signum;
     gsl_linalg_LU_decomp(&A.matrix, p, &signum);
@@ -262,7 +262,7 @@ int main() {
 }
 ```
 
-### 統計計算
+### Statistical Computation
 
 ```c
 #include <gsl/gsl_sort.h>
@@ -279,7 +279,7 @@ int main() {
     printf("max      = %f\n", gsl_stats_max(data, 1, n));
     printf("min      = %f\n", gsl_stats_min(data, 1, n));
 
-    // ソートしてから中央値を求める
+    // Sort the data first, then compute the median
     gsl_sort(data, 1, n);
     printf("median   = %f\n", gsl_stats_median_from_sorted_data(data, 1, n));
 
@@ -287,7 +287,7 @@ int main() {
 }
 ```
 
-### 三次スプライン補間
+### Cubic Spline Interpolation
 
 ```c
 #include <gsl/gsl_spline.h>
@@ -318,7 +318,7 @@ int main() {
 }
 ```
 
-### 数値微分
+### Numerical Differentiation
 
 ```c
 #include <gsl/gsl_deriv.h>
@@ -336,7 +336,7 @@ int main() {
 
     double result, abserr;
 
-    // x = pi/4 における sin(x) の微分 → cos(pi/4) ≈ 0.7071
+    // Derivative of sin(x) at x = pi/4 -> cos(pi/4) ≈ 0.7071
     gsl_deriv_central(&F, M_PI / 4.0, 1e-8, &result, &abserr);
     printf("f'(pi/4)  = %.10f (exact: %.10f)\n", result, cos(M_PI / 4.0));
     printf("abs error = %.2e\n", abserr);
@@ -345,7 +345,7 @@ int main() {
 }
 ```
 
-### FFT (実数列)
+### FFT (Real Sequence)
 
 ```c
 #include <gsl/gsl_fft_halfcomplex.h>
@@ -356,11 +356,11 @@ int main() {
     const int N = 16;
     double data[16];
 
-    // 矩形パルスを作成
+    // Create a rectangular pulse
     for (int i = 0; i < N; i++)
         data[i] = (i >= 4 && i < 12) ? 1.0 : 0.0;
 
-    // 順変換
+    // Forward transform
     gsl_fft_real_wavetable *real = gsl_fft_real_wavetable_alloc(N);
     gsl_fft_real_workspace *w = gsl_fft_real_workspace_alloc(N);
     gsl_fft_real_transform(data, 1, N, real, w);
@@ -370,7 +370,7 @@ int main() {
     for (int i = 0; i < N; i++)
         printf("  [%2d] = %+.6e\n", i, data[i]);
 
-    // 逆変換
+    // Inverse transform
     gsl_fft_halfcomplex_wavetable *hc = gsl_fft_halfcomplex_wavetable_alloc(N);
     gsl_fft_halfcomplex_inverse(data, 1, N, hc, w);
     gsl_fft_halfcomplex_wavetable_free(hc);
@@ -384,7 +384,7 @@ int main() {
 }
 ```
 
-### 乱数生成と確率分布
+### Random Number Generation and Probability Distributions
 
 ```c
 #include <gsl/gsl_randist.h>
@@ -392,21 +392,21 @@ int main() {
 #include <stdio.h>
 
 int main() {
-    // Mersenne Twister で乱数生成器を初期化
+    // Initialize random number generator with Mersenne Twister
     gsl_rng *rng = gsl_rng_alloc(gsl_rng_mt19937);
     gsl_rng_set(rng, 12345);
 
-    // 一様乱数 [0, 1)
+    // Uniform random numbers [0, 1)
     printf("Uniform:\n");
     for (int i = 0; i < 5; i++)
         printf("  %f\n", gsl_rng_uniform(rng));
 
-    // ガウス分布 (sigma=1.0)
+    // Gaussian distribution (sigma=1.0)
     printf("Gaussian (sigma=1):\n");
     for (int i = 0; i < 5; i++)
         printf("  %f\n", gsl_ran_gaussian(rng, 1.0));
 
-    // ポアソン分布 (lambda=4.0)
+    // Poisson distribution (lambda=4.0)
     printf("Poisson (lambda=4):\n");
     for (int i = 0; i < 10; i++)
         printf("  %u\n", gsl_ran_poisson(rng, 4.0));
@@ -416,7 +416,7 @@ int main() {
 }
 ```
 
-### 数値積分
+### Numerical Integration
 
 ```c
 #include <gsl/gsl_integration.h>
@@ -424,7 +424,7 @@ int main() {
 #include <stdio.h>
 
 double f(double x, void *params) {
-    return exp(-x * x);  // ガウス関数
+    return exp(-x * x);  // Gaussian function
 }
 
 int main() {
@@ -445,14 +445,14 @@ int main() {
 }
 ```
 
-### 常微分方程式 (ODE)
+### Ordinary Differential Equations (ODE)
 
 ```c
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_odeiv2.h>
 #include <stdio.h>
 
-// dy/dt = -y (解析解: y = exp(-t))
+// dy/dt = -y (analytical solution: y = exp(-t))
 int func(double t, const double y[], double dydt[], void *params) {
     (void)t;
     (void)params;
@@ -485,20 +485,20 @@ int main() {
 
 ## GSL API Conventions
 
-### 関数の命名規則
+### Function Naming Conventions
 
-GSL の関数名は一貫した命名規則に従っています:
+GSL function names follow a consistent naming convention:
 
 | Pattern | Example | Description |
 |---------|---------|-------------|
-| `gsl_<module>_alloc` | `gsl_vector_alloc(n)` | メモリの確保 |
-| `gsl_<module>_free` | `gsl_vector_free(v)` | メモリの解放 |
-| `gsl_<module>_set` | `gsl_vector_set(v, i, x)` | 値の設定 |
-| `gsl_<module>_get` | `gsl_vector_get(v, i)` | 値の取得 |
+| `gsl_<module>_alloc` | `gsl_vector_alloc(n)` | Allocate memory |
+| `gsl_<module>_free` | `gsl_vector_free(v)` | Free memory |
+| `gsl_<module>_set` | `gsl_vector_set(v, i, x)` | Set a value |
+| `gsl_<module>_get` | `gsl_vector_get(v, i)` | Get a value |
 
-### エラーハンドリング
+### Error Handling
 
-GSL の関数は通常、整数のエラーコードを返します:
+GSL functions typically return integer error codes:
 
 ```c
 #include <gsl/gsl_errno.h>
@@ -509,27 +509,27 @@ if (status != GSL_SUCCESS) {
 }
 ```
 
-主なエラーコード:
+Common error codes:
 
 | Code | Constant | Description |
 |------|----------|-------------|
-| 0 | `GSL_SUCCESS` | 正常終了 |
-| 1 | `GSL_EDOM` | 定義域エラー |
-| 2 | `GSL_ERANGE` | 値域エラー (オーバーフロー等) |
-| 4 | `GSL_EINVAL` | 不正な引数 |
-| 8 | `GSL_ENOMEM` | メモリ確保失敗 |
+| 0 | `GSL_SUCCESS` | Success |
+| 1 | `GSL_EDOM` | Domain error |
+| 2 | `GSL_ERANGE` | Range error (overflow, etc.) |
+| 4 | `GSL_EINVAL` | Invalid argument |
+| 8 | `GSL_ENOMEM` | Memory allocation failure |
 
-### メモリ管理
+### Memory Management
 
-GSL は `_alloc` / `_free` パターンでメモリを管理します。確保したオブジェクトは必ず対応する `_free` で解放してください:
+GSL manages memory using the `_alloc` / `_free` pattern. Always free allocated objects with the corresponding `_free` function:
 
 ```c
 gsl_vector *v = gsl_vector_alloc(10);
-// ... 使用 ...
+// ... use ...
 gsl_vector_free(v);
 
 gsl_matrix *m = gsl_matrix_alloc(3, 3);
-// ... 使用 ...
+// ... use ...
 gsl_matrix_free(m);
 ```
 
@@ -551,8 +551,8 @@ gsl_matrix_free(m);
 | Interpolation | Yes | No | No | No |
 | Numerical Integration | Yes | No | No | No |
 
-GSL は「科学計算のスイスアーミーナイフ」として、幅広い数値計算機能を単一のライブラリで提供します。
-Eigen や Armadillo は線形代数に特化しており、C++ テンプレートによる高速化に優れますが、統計・FFT・ODE 等の機能は含みません。
+GSL serves as a "Swiss Army knife for scientific computing," providing a wide range of numerical computation capabilities in a single library.
+Eigen and Armadillo specialize in linear algebra and excel at optimization through C++ templates, but they do not include features such as statistics, FFT, ODE solvers, etc.
 
 ---
 
@@ -626,6 +626,6 @@ In these cases, `gslcblas_lib` is not needed.
 - [GSL Official Website](https://www.gnu.org/software/gsl/)
 - [GSL Reference Manual](https://www.gnu.org/software/gsl/doc/html/)
 - [GSL Source (FTP)](https://ftp.gnu.org/gnu/gsl/)
-- [C++ Introduction to GSL (日本語)](https://modeling-res-lab.com/programming/gsl.html)
+- [C++ Introduction to GSL (Japanese)](https://modeling-res-lab.com/programming/gsl.html)
 - [CMake execute_process Documentation](https://cmake.org/cmake/help/latest/command/execute_process.html)
 - [CMake file(DOWNLOAD) Documentation](https://cmake.org/cmake/help/latest/command/file.html#download)
