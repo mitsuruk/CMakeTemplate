@@ -53,16 +53,29 @@ Each module is included by uncommenting the corresponding line in `CMakeLists.tx
 
 | Module | Description |
 | --- | --- |
+| `alglib.cmake` | ALGLIB numerical analysis library manual download and static build |
 | `apple.cmake` | macOS/Homebrew path settings, Metal C++ support |
-| `framework.cmake` | Apple system framework linking (200+ frameworks listed) |
 | `boost.cmake` | Boost library search and linking |
-| `sqlite3.cmake` | SQLite3 amalgamation auto-download and static build |
-| `replxx.cmake` | replxx (readline alternative) auto-download via FetchContent |
-| `llama.cmake` | llama.cpp auto-download and build via FetchContent |
-| `dlib.cmake` | dlib library auto-download and build |
+| `botan.cmake` | Botan cryptography library manual download and Python-based configure build |
 | `CodeGenerators.cmake` | Flex/Bison, gRPC/Protobuf, ANTLR integration |
+| `dlib.cmake` | dlib library auto-download and build |
+| `Exiv2.cmake` | Exiv2 image metadata (Exif/IPTC/XMP) library via FetchContent |
+| `framework.cmake` | Apple system framework linking (200+ frameworks listed) |
+| `gflags.cmake` | Google commandline flags library manual download and CMake build |
+| `glog.cmake` | Google logging library manual download and CMake build |
+| `gmp.cmake` | GNU arbitrary precision arithmetic library manual download and autotools build |
+| `gsl.cmake` | GNU Scientific Library manual download and autotools build |
 | `install.cmake` | Installation rules for `cmake --install` |
+| `isocline.cmake` | isocline (portable readline alternative) manual download and CMake build |
+| `LibSodium.cmake` | libsodium modern cryptography library manual download and autotools build |
+| `LinqForCpp.cmake` | LINQ for C++ header-only library direct download from GitHub |
+| `llama.cmake` | llama.cpp auto-download and build via FetchContent |
+| `mpdecimal.cmake` | mpdecimal arbitrary precision decimal arithmetic library manual download and autotools build |
+| `nlohmann-json.cmake` | nlohmann/json header-only JSON library single header download |
+| `openblas.cmake` | OpenBLAS optimized BLAS/LAPACK library manual download and make build |
 | `packageInstall.cmake` | CMake package export for `find_package()` |
+| `replxx.cmake` | replxx (readline alternative) auto-download via FetchContent |
+| `sqlite3.cmake` | SQLite3 amalgamation auto-download and static build |
 
 **Utility Functions (defined in `CMakeLists.txt`):**
 
@@ -83,32 +96,61 @@ Basic/
 ├── Doxyfile                        # Doxygen configuration
 ├── .gitignore                      # Git exclusion settings
 ├── src/
+│   ├── include/                    # Header files
 │   └── main.cpp                    # Sample source (compiler info, CMake definitions demo)
 ├── test/
 │   ├── test_main.cpp               # GoogleTest sample tests
 │   ├── googleTest.md               # GoogleTest usage guide
 │   └── README.md                   # Test build/run instructions
+├── download/                       # Downloaded library sources (auto-created)
 └── cmake/
+    ├── alglib.cmake                # ALGLIB numerical analysis
+    ├── alglibCmake.md
     ├── apple.cmake                 # macOS/Homebrew settings
     ├── appleCmake.md
     ├── boost.cmake                 # Boost integration
     ├── boostCmake.md
+    ├── botan.cmake                 # Botan cryptography
+    ├── botanCmake.md
+    ├── CodeGenerators.cmake        # Flex/Bison/gRPC/ANTLR
+    ├── CodeGeneratorsCmake.md
     ├── dlib.cmake                  # dlib integration
     ├── dlibCmake.md
+    ├── Exiv2.cmake                 # Exiv2 image metadata
+    ├── Exiv2Cmake.md
     ├── framework.cmake             # Apple framework linking
     ├── frameworkCmake.md
+    ├── gflags.cmake                # Google commandline flags
+    ├── gflagsCmake.md
+    ├── glog.cmake                  # Google logging
+    ├── glogCmake.md
+    ├── gmp.cmake                   # GNU arbitrary precision arithmetic
+    ├── gmpCmake.md
+    ├── gsl.cmake                   # GNU Scientific Library
+    ├── gslCmake.md
     ├── install.cmake               # Installation rules
     ├── installCmake.md
+    ├── isocline.cmake              # isocline readline alternative
+    ├── isoclineCmake.md
+    ├── LibSodium.cmake             # libsodium cryptography
+    ├── LibSodiumCmake.md
+    ├── LinqForCpp.cmake            # LINQ for C++ header-only
+    ├── LinqForCppCmake.md
     ├── llama.cmake                 # llama.cpp integration
     ├── llamaCmake.md
+    ├── mpdecimal.cmake             # mpdecimal decimal arithmetic
+    ├── mpdecimalCmake.md
+    ├── nlohmann-json.cmake         # nlohmann/json header-only
+    ├── nlohmann-jsonCmake.md
+    ├── openblas.cmake              # OpenBLAS BLAS/LAPACK
+    ├── openblasCmake.md
     ├── packageInstall.cmake        # CMake package export
     ├── packageInstallCmake.md
     ├── replxx.cmake                # replxx integration
     ├── replxxCmake.md
     ├── sqlite3.cmake               # SQLite3 integration
     ├── sqlite3Cmake.md
-    ├── CodeGenerators.cmake        # Flex/Bison/gRPC/ANTLR
-    ├── CodeGeneratorsCmake.md
+    ├── JPN/                        # Japanese documentation
     ├── check_all_linkable_frameworks.sh  # Framework listing utility
     └── debug.txt                   # CMake variable debug script
 ```
