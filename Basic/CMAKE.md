@@ -21,16 +21,16 @@ CMakeLists.txt processing order:
 3. Compiler Settings (lines 86-194)
    └─ Output directories, language standards, build type, sanitizers
 
-4. Post-Build Processing (lines 224-246)
-   └─ macOS-specific diagnostic commands
+4. Post-Build Processing (lines 224-258)
+   └─ macOS-specific diagnostics, compile_commands.json copy, clangd cache cleanup
 
-5. Include Path Configuration (lines 248-267)
+5. Include Path Configuration (lines 260-279)
    └─ Header directories inside and outside the project
 
-6. Extension Module Loading (lines 269-441)
-   └─ Conditional inclusion of .cmake files
+6. Extension Module Loading (lines 281-495)
+   └─ Conditional inclusion of .cmake files (apple, framework active; others commented)
 
-7. Utility Function Definitions (lines 289-482)
+7. Utility Function Definitions (lines 301-537)
    └─ copy_files(), find_pkg_config(), link_latest_package()
 ```
 
@@ -432,9 +432,10 @@ Enabled with `cmake -DSANI=true ..`:
 
 ---
 
-### 17. Post-Build Processing (lines 224-246)
+### 17. Post-Build Processing (lines 224-258)
 
 ```cmake
+# macOS-specific diagnostics
 if(APPLE)
     add_custom_command(
         TARGET ${PROJECT_NAME}
@@ -445,27 +446,36 @@ if(APPLE)
         COMMAND "otool" "-L" "${BINARY_OUTPUT_DIR}/${PROJECT_NAME}"
         COMMENT "${PROJECT_NAME} information"
     )
-
-    add_custom_command(
-        TARGET ${PROJECT_NAME}
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/compile_commands.json ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
-        COMMENT "Copying compile_commands.json to source directory"
-    )
 endif()
+
+# Copy compile_commands.json to source directory (all platforms)
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/compile_commands.json ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
+    COMMENT "Copying compile_commands.json to source directory"
+)
+
+# Remove clangd cache files (all platforms)
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "${PROJECT_SOURCE_DIR}/.cache"
+)
 ```
 
 **Expected Behavior:**
 
 Automatically executed after a successful build:
 
-1. Displays the current date and time
-2. Displays the working directory
-3. `lipo -archs`: Displays the executable's architecture (e.g., `x86_64`, `arm64`)
-4. `otool -L`: Lists the linked dynamic libraries
-5. Copies `compile_commands.json` to the source directory
+1. **(macOS only)** Displays the current date and time
+2. **(macOS only)** Displays the working directory
+3. **(macOS only)** `lipo -archs`: Displays the executable's architecture (e.g., `x86_64`, `arm64`)
+4. **(macOS only)** `otool -L`: Lists the linked dynamic libraries
+5. **(All platforms)** Copies `compile_commands.json` to the source directory
+6. **(All platforms)** Removes the `.cache` directory (clangd index cache) to force re-indexing
 
-**Output example:**
+**Output example (macOS):**
 
 ```text
 Mon, 15 Jan 2026 14:30:00 +0900
@@ -478,7 +488,7 @@ arm64
 
 ---
 
-### 18. Include Path Configuration (lines 248-267)
+### 18. Include Path Configuration (lines 260-279)
 
 ```cmake
 if(IS_DIRECTORY ${PROJECT_SOURCE_DIR}/src/include)
@@ -513,10 +523,10 @@ The following directories are added to the include path if they exist:
 
 ---
 
-### 19. Extension Module Loading (lines 269-441)
+### 19. Extension Module Loading (lines 281-495)
 
 ```cmake
-# macOS only
+# macOS only (active by default)
 if(APPLE)
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/apple.cmake)
         include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/apple.cmake)
@@ -526,42 +536,57 @@ if(APPLE)
     endif()
 endif()
 
-# Common
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/install.cmake)
-    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/install.cmake)
-endif()
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/boost.cmake)
-    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/boost.cmake)
-endif()
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CodeGenerators.cmake)
-    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CodeGenerators.cmake)
-endif()
+# Common (commented out by default — uncomment to enable)
+# include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/install.cmake)
+# include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/boost.cmake)
+# include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CodeGenerators.cmake)
+# include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/sqlite3.cmake)
+# include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/dlib.cmake)
 ```
 
 **Expected Behavior:**
 
-| File | Condition | Functionality |
-|------|-----------|---------------|
-| `cmake/apple.cmake` | macOS + file exists | Homebrew configuration, Metal C++ support |
-| `cmake/framework.cmake` | macOS + file exists | Apple framework linking |
-| `cmake/install.cmake` | File exists | Install rules |
-| `cmake/boost.cmake` | File exists | Boost library integration |
-| `cmake/CodeGenerators.cmake` | File exists | Flex/Bison/gRPC/ANTLR integration |
+| File | Status | Condition | Functionality |
+| --- | --- | --- | --- |
+| `cmake/apple.cmake` | **Active** | macOS + file exists | Homebrew configuration, Metal C++ support |
+| `cmake/framework.cmake` | **Active** | macOS + file exists | Apple framework linking |
+| `cmake/install.cmake` | Commented | Uncomment to enable | Install rules |
+| `cmake/boost.cmake` | Commented | Uncomment to enable | Boost library integration |
+| `cmake/CodeGenerators.cmake` | Commented | Uncomment to enable | Flex/Bison/gRPC/ANTLR integration |
+| `cmake/sqlite3.cmake` | Commented | Uncomment to enable | SQLite3 integration |
+| `cmake/dlib.cmake` | Commented | Uncomment to enable | dlib integration |
+
+**Note:** All other extension modules in the `cmake/` directory (alglib, botan, Exiv2, gflags, glog, gmp, gsl, isocline, LibSodium, LinqForCpp, llama, mpdecimal, nlohmann-json, openblas, packageInstall, replxx) can be enabled by adding an `include()` block following the same pattern.
 
 ---
 
-### 20. GoogleTest Integration (lines 392-420)
+### 20. GoogleTest Integration (lines 408-460)
 
 ```cmake
 if(GTEST)
     find_package(GTest REQUIRED)
+    enable_testing()
+
     target_link_libraries(
         ${PROJECT_NAME}
         PRIVATE
         GTest::gmock
         GTest::gmock_main
     )
+
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS "GTEST")
+
+    # Register with CTest
+    add_test(
+        NAME ${PROJECT_NAME}_tests
+        COMMAND ${PROJECT_NAME}
+        WORKING_DIRECTORY ${BINARY_OUTPUT_DIR}
+    )
+
+    set_tests_properties(${PROJECT_NAME}_tests PROPERTIES
+        TIMEOUT 60
+        ENVIRONMENT "GTEST_COLOR=1"
+    )
 endif()
 ```
 
@@ -570,8 +595,19 @@ endif()
 Enabled with `cmake -DGTEST=true ..`:
 
 1. Searches for the GoogleTest package
-2. Links GoogleMock + GoogleTest
-3. Defines the `GTEST` macro
+2. Enables CTest for the project
+3. Links GoogleMock + GoogleTest
+4. Defines the `GTEST` macro
+5. Registers the executable as a CTest test with a 60-second timeout and colored output
+
+**Running tests:**
+
+```bash
+cmake -DGTEST=true ..
+cmake --build .
+ctest              # or ctest --verbose
+./${PROJECT_NAME}  # run directly
+```
 
 **Usage example:**
 
@@ -595,7 +631,7 @@ int main(int argc, char **argv) {
 
 ## Utility Functions
 
-### copy_files() (lines 303-330)
+### copy_files() (lines 301-346)
 
 Copies files with a specified extension to the build directory.
 
@@ -621,7 +657,7 @@ add_dependencies(${PROJECT_NAME} copy_json_files)
 
 ---
 
-### find_pkg_config() (lines 338-376)
+### find_pkg_config() (lines 348-392)
 
 Searches for and links a package using pkg-config.
 
@@ -646,7 +682,7 @@ find_pkg_config(${PROJECT_NAME} PUBLIC gtk+-3.0)
 
 ---
 
-### link_latest_package() (lines 454-481) - macOS only
+### link_latest_package() (lines 498-537) - macOS only
 
 Manually links the latest version of a package installed via Homebrew.
 
@@ -689,6 +725,12 @@ link_latest_package(boost "libboost_system.dylib;libboost_filesystem.dylib")
 
 ## Extension Module Details
 
+### alglib.cmake
+
+- ALGLIB numerical analysis library
+- Manual download and static build with source compilation
+- Provides numerical analysis, data processing, and optimization functions
+
 ### apple.cmake
 
 - Automatic detection of the Homebrew installation directory
@@ -701,33 +743,116 @@ link_latest_package(boost "libboost_system.dylib;libboost_filesystem.dylib")
 - Select components to use via the `BOOST_COMPONENTS` list
 - Key components: `headers`, `filesystem`, `regex`, `json`, `program_options`
 
-### framework.cmake
+### botan.cmake
 
-- Link configuration for macOS system frameworks
-- Over 200 frameworks listed with comments
-- Uncomment the desired frameworks to enable them
-
-### install.cmake
-
-- Install rules for `cmake --install`
-- Configuration of install destinations for executables, headers, and documentation
-
-### packageInstall.cmake
-
-- Export as a CMake package
-- Makes the project available to other projects via `find_package()`
-
-### sqlite3.cmake
-
-- Automatic download of the SQLite3 amalgamation
-- Built as a static library
-- Cached in `download/sqlite3/`
+- Botan cryptography library
+- Manual download and Python-based configure build
+- Provides TLS, X.509, AEAD, hashing, and other cryptographic primitives
 
 ### CodeGenerators.cmake
 
 - Flex/Bison: Processes `.y`/`.l` files in the `grammar/` directory
 - gRPC/Protobuf: Processes `.proto` files in the `protos/` directory
 - ANTLR: Processes `.g4` files in the `antlr/` directory
+
+### dlib.cmake
+
+- dlib machine learning / computer vision library
+- Auto-download and build
+
+### Exiv2.cmake
+
+- Exiv2 image metadata library (Exif/IPTC/XMP)
+- FetchContent with install cache
+
+### framework.cmake
+
+- Link configuration for macOS system frameworks
+- Over 200 frameworks listed with comments
+- Uncomment the desired frameworks to enable them
+
+### gflags.cmake
+
+- Google commandline flags library
+- Manual download and CMake-based build
+
+### glog.cmake
+
+- Google logging library
+- Manual download and CMake-based build
+
+### gmp.cmake
+
+- GNU Multiple Precision Arithmetic Library
+- Manual download and autotools-based build
+- Provides arbitrary precision integer, rational, and floating-point arithmetic
+
+### gsl.cmake
+
+- GNU Scientific Library
+- Manual download and autotools-based build
+- Provides numerical routines for scientific computing
+
+### install.cmake
+
+- Install rules for `cmake --install`
+- Configuration of install destinations for executables, headers, and documentation
+
+### isocline.cmake
+
+- isocline portable readline alternative
+- Manual download and CMake-based build
+- Provides line editing with syntax highlighting and completion
+
+### LibSodium.cmake
+
+- libsodium modern cryptography library
+- Manual download and autotools-based build
+- Provides encryption, decryption, signatures, and password hashing
+
+### LinqForCpp.cmake
+
+- LINQ for C++ header-only library
+- Direct download from GitHub (zip)
+- Provides LINQ-style query operations for C++ containers
+
+### llama.cmake
+
+- llama.cpp LLM inference engine
+- Auto-download and build via FetchContent
+
+### mpdecimal.cmake
+
+- mpdecimal arbitrary precision decimal arithmetic library
+- Manual download and autotools-based build
+
+### nlohmann-json.cmake
+
+- nlohmann/json header-only JSON library
+- Single header file direct download
+
+### openblas.cmake
+
+- OpenBLAS optimized BLAS/LAPACK library
+- Manual download and make-based build
+- Provides optimized linear algebra routines
+
+### packageInstall.cmake
+
+- Export as a CMake package
+- Makes the project available to other projects via `find_package()`
+
+### replxx.cmake
+
+- replxx readline alternative
+- Auto-download via FetchContent
+- Provides line editing with history, completion, and syntax highlighting
+
+### sqlite3.cmake
+
+- Automatic download of the SQLite3 amalgamation
+- Built as a static library
+- Cached in `download/sqlite3/`
 
 ---
 
@@ -782,3 +907,4 @@ ld: library not found for -lasan
 
 - 2025-11-26: Initial version created
 - 2026-01-15: Added detailed guide with section-by-section explanations
+- 2026-02-17: Synchronized with CMakeLists.txt — updated post-build processing (clangd cache cleanup, platform-independent compile_commands.json copy), corrected extension module loading section (apple/framework active, others commented), added GoogleTest CTest registration, added 13 new extension module descriptions (alglib, botan, dlib, Exiv2, gflags, glog, gmp, gsl, isocline, LibSodium, LinqForCpp, llama, mpdecimal, nlohmann-json, openblas, replxx), updated line references throughout
