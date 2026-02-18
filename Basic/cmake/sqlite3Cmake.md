@@ -160,8 +160,17 @@ target_include_directories(sqlite3 PUBLIC
 
 ```cmake
 target_compile_definitions(sqlite3 PUBLIC
-    SQLITE_ENABLE_FTS5
-    SQLITE_THREADSAFE=1
+    SQLITE_ENABLE_FTS5                      # Full-text search engine version 5
+    SQLITE_ENABLE_MATH_FUNCTIONS            # Math functions: sin(), log(), sqrt(), etc.
+    SQLITE_ENABLE_STAT4                     # Enhanced query planner statistics
+    SQLITE_ENABLE_COLUMN_METADATA           # Column metadata API support
+    SQLITE_DQS=0                            # Disable double-quoted string literals
+    SQLITE_DEFAULT_MEMSTATUS=0              # Disable memory usage tracking for speed
+    SQLITE_DEFAULT_WAL_SYNCHRONOUS=1        # Set WAL sync level to NORMAL
+    SQLITE_LIKE_DOESNT_MATCH_BLOBS          # LIKE operator skips BLOB values
+    SQLITE_OMIT_DEPRECATED                  # Omit deprecated APIs
+    SQLITE_MAX_EXPR_DEPTH=0                 # Remove expression depth limit
+    SQLITE_THREADSAFE=2                     # Thread-safe mode: 1=serialized, 2=multi-thread, 0=off
 )
 
 target_compile_options(sqlite3 PRIVATE
@@ -170,13 +179,35 @@ target_compile_options(sqlite3 PRIVATE
 ```
 
 | Definition | Description |
-|------------|-------------|
+| ---------- | ----------- |
 | `SQLITE_ENABLE_FTS5` | Enables the full-text search engine (FTS5) |
-| `SQLITE_THREADSAFE=1` | Thread-safe mode (serialized) |
+| `SQLITE_ENABLE_MATH_FUNCTIONS` | Enables math functions such as `sin()`, `log()`, `sqrt()` |
+| `SQLITE_ENABLE_STAT4` | Enables enhanced query planner statistics for better performance with large datasets |
+| `SQLITE_ENABLE_COLUMN_METADATA` | Enables column metadata API (`sqlite3_column_table_name()`, etc.) |
+| `SQLITE_DQS=0` | Disables double-quoted string literals (recommended for safety) |
+| `SQLITE_DEFAULT_MEMSTATUS=0` | Disables memory usage tracking for slightly faster performance |
+| `SQLITE_DEFAULT_WAL_SYNCHRONOUS=1` | Sets WAL mode sync level to NORMAL for better write performance |
+| `SQLITE_LIKE_DOESNT_MATCH_BLOBS` | LIKE operator skips BLOB values for faster text searches |
+| `SQLITE_OMIT_DEPRECATED` | Omits deprecated APIs for a smaller build |
+| `SQLITE_MAX_EXPR_DEPTH=0` | Removes expression depth limit for complex queries |
+| `SQLITE_THREADSAFE=2` | Multi-thread mode (each connection must be used in a single thread) |
 
 | Option | Description |
 |--------|-------------|
 | `-O2` | Optimization level 2 |
+
+**Adding extra definitions from the caller side:**
+
+You can add additional compile definitions from your `CMakeLists.txt` after including `sqlite3.cmake`. The `target_compile_definitions` command is cumulative, so definitions are appended without modifying the original file.
+
+```cmake
+include(cmake/sqlite3.cmake)
+
+# Add extra compile definitions to sqlite3 from the caller side
+target_compile_definitions(sqlite3 PUBLIC
+    SQLITE_ENABLE_LOAD_EXTENSION
+)
+```
 
 ---
 

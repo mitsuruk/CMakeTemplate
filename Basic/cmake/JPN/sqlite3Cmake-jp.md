@@ -160,8 +160,17 @@ target_include_directories(sqlite3 PUBLIC
 
 ```cmake
 target_compile_definitions(sqlite3 PUBLIC
-    SQLITE_ENABLE_FTS5
-    SQLITE_THREADSAFE=1
+    SQLITE_ENABLE_FTS5                      # Full-text search engine version 5
+    SQLITE_ENABLE_MATH_FUNCTIONS            # Math functions: sin(), log(), sqrt(), etc.
+    SQLITE_ENABLE_STAT4                     # Enhanced query planner statistics
+    SQLITE_ENABLE_COLUMN_METADATA           # Column metadata API support
+    SQLITE_DQS=0                            # Disable double-quoted string literals
+    SQLITE_DEFAULT_MEMSTATUS=0              # Disable memory usage tracking for speed
+    SQLITE_DEFAULT_WAL_SYNCHRONOUS=1        # Set WAL sync level to NORMAL
+    SQLITE_LIKE_DOESNT_MATCH_BLOBS          # LIKE operator skips BLOB values
+    SQLITE_OMIT_DEPRECATED                  # Omit deprecated APIs
+    SQLITE_MAX_EXPR_DEPTH=0                 # Remove expression depth limit
+    SQLITE_THREADSAFE=2                     # Thread-safe mode: 1=serialized, 2=multi-thread, 0=off
 )
 
 target_compile_options(sqlite3 PRIVATE
@@ -170,13 +179,35 @@ target_compile_options(sqlite3 PRIVATE
 ```
 
 | 定義 | 説明 |
-|------|------|
+| ---- | ---- |
 | `SQLITE_ENABLE_FTS5` | 全文検索エンジン（FTS5）を有効化 |
-| `SQLITE_THREADSAFE=1` | スレッドセーフモード（シリアライズド） |
+| `SQLITE_ENABLE_MATH_FUNCTIONS` | 数学関数（`sin()`, `log()`, `sqrt()` 等）を有効化 |
+| `SQLITE_ENABLE_STAT4` | クエリプランナーの統計情報を強化（大量データでの性能向上） |
+| `SQLITE_ENABLE_COLUMN_METADATA` | カラムメタデータ API（`sqlite3_column_table_name()` 等）を有効化 |
+| `SQLITE_DQS=0` | ダブルクォートの文字列リテラル使用を禁止（安全性向上） |
+| `SQLITE_DEFAULT_MEMSTATUS=0` | メモリ使用量トラッキングを無効化（わずかに高速化） |
+| `SQLITE_DEFAULT_WAL_SYNCHRONOUS=1` | WAL モード時の同期レベルを NORMAL に設定（書き込み性能向上） |
+| `SQLITE_LIKE_DOESNT_MATCH_BLOBS` | LIKE 演算子が BLOB 値をスキップ（テキスト検索の高速化） |
+| `SQLITE_OMIT_DEPRECATED` | 非推奨 API を省略（ビルドサイズ削減） |
+| `SQLITE_MAX_EXPR_DEPTH=0` | 式の深さ制限を撤廃（複雑なクエリに対応） |
+| `SQLITE_THREADSAFE=2` | マルチスレッドモード（各接続は単一スレッドで使用する必要あり） |
 
 | オプション | 説明 |
 |----------|------|
 | `-O2` | 最適化レベル 2 |
+
+**呼び出し側からの定義追加：**
+
+`sqlite3.cmake` をインクルードした後、呼び出し側の `CMakeLists.txt` からコンパイル定義を追加できます。`target_compile_definitions` は累積的に動作するため、元のファイルを変更せずに定義を追加できます。
+
+```cmake
+include(cmake/sqlite3.cmake)
+
+# 呼び出し側から sqlite3 にコンパイル定義を追加
+target_compile_definitions(sqlite3 PUBLIC
+    SQLITE_ENABLE_LOAD_EXTENSION
+)
+```
 
 ---
 

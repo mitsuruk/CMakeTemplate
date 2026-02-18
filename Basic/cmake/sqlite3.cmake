@@ -109,8 +109,28 @@ target_include_directories(sqlite3 PUBLIC
 )
 
 target_compile_definitions(sqlite3 PUBLIC
-    SQLITE_ENABLE_FTS5
-    SQLITE_THREADSAFE=1
+    SQLITE_ENABLE_FTS5                      # Full-text search engine version 5
+    SQLITE_ENABLE_MATH_FUNCTIONS            # Math functions: sin(), log(), sqrt(), etc.
+    SQLITE_ENABLE_STAT4                     # Enhanced query planner statistics
+    SQLITE_ENABLE_COLUMN_METADATA           # Column metadata API support
+    SQLITE_DQS=0                            # Disable double-quoted string literals
+    SQLITE_DEFAULT_MEMSTATUS=0              # Disable memory usage tracking for speed
+    SQLITE_DEFAULT_WAL_SYNCHRONOUS=1        # Set WAL sync level to NORMAL
+    SQLITE_LIKE_DOESNT_MATCH_BLOBS          # LIKE operator skips BLOB values
+    SQLITE_OMIT_DEPRECATED                  # Omit deprecated APIs
+    SQLITE_MAX_EXPR_DEPTH=0                 # Remove expression depth limit
+    SQLITE_THREADSAFE=2                     # Thread-safe mode: 1=serialized, 2=multi-thread, 0=off
+    # SQLITE_ENABLE_FTS3                    # Full-text search engine version 3
+    # SQLITE_ENABLE_FTS4                    # Full-text search engine version 4
+    # SQLITE_ENABLE_RTREE                   # R-Tree index for spatial queries
+    # SQLITE_ENABLE_GEOPOLY                 # Geospatial extension based on R-Tree
+    # SQLITE_ENABLE_JSON1                   # JSON functions (built-in since 3.38.0)
+    # SQLITE_ENABLE_LOAD_EXTENSION          # Allow loading extensions at runtime
+    # SQLITE_ENABLE_UPDATE_DELETE_LIMIT     # Allow LIMIT clause in UPDATE/DELETE
+    # SQLITE_ENABLE_DBSTAT_VTAB             # dbstat virtual table for DB analysis
+    # SQLITE_ENABLE_STMTVTAB                # sqlite_stmt virtual table for diagnostics
+    # SQLITE_ENABLE_EXPLAIN_COMMENTS        # Add comments to EXPLAIN output
+    # SQLITE_OMIT_DECLTYPE                  # Omit sqlite3_column_decltype() for smaller build
 )
 
 target_compile_options(sqlite3 PRIVATE
